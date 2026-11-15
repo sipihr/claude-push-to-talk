@@ -13,7 +13,7 @@
     "url": "https://github.com/sipihr/claude-push-to-talk/issues"
   },
   "homepage": "https://github.com/sipihr/claude-push-to-talk#readme",
-  "version": "1.20.0",
+  "version": "1.20.1",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -69,6 +69,18 @@
         "title": "Claude Push-to-Talk: Remove Downloaded Voices"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "claudePushToTalk.dictationKey",
+          "when": "false"
+        },
+        {
+          "command": "claudePushToTalk.cancelDictation",
+          "when": "false"
+        }
+      ]
+    },
     "keybindings": [
       {
         "command": "claudePushToTalk.dictationKey",

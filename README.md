@@ -100,7 +100,6 @@ The **Voice** list shows the voices on your computer. When they change, the exte
 | Command | What it does |
 | --- | --- |
 | Claude Push-to-Talk: Global Dictation Key | The command behind Insert; rebind it to change the dictation key |
-| Claude Push-to-Talk: Cancel Dictation | Cancels the dictation in progress (Esc) |
 | Claude Push-to-Talk: Stop Speaking | Stops the current reading (Alt+X) |
 | Claude Push-to-Talk: Select Read-Aloud Voice | Shows the voices on your computer to pick from. The end of the list lets you download a Piper voice, install a Windows voice (Windows only) or remove downloaded voices |
 | Claude Push-to-Talk: Remove Downloaded Voices | Deletes downloaded Piper voices |
