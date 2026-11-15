@@ -1,0 +1,175 @@
+{
+  "name": "claude-push-to-talk",
+  "displayName": "Claude Push-to-Talk",
+  "description": "Push to talk for the Claude Code extension: sends the message when dictation stops, and reads responses aloud.",
+  "publisher": "EmirErdem",
+  "icon": "claude_push_to_talk.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sipihr/claude-push-to-talk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sipihr/claude-push-to-talk/issues"
+  },
+  "homepage": "https://github.com/sipihr/claude-push-to-talk#readme",
+  "version": "1.20.0",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
+  "main": "./extension.js",
+  "scripts": {
+    "vscode:uninstall": "node ./uninstall.js"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "claudePushToTalk.dictationKey",
+        "title": "Claude Push-to-Talk: In-Panel Dictation Key (internal)"
+      },
+      {
+        "command": "claudePushToTalk.dictationKeyGlobal",
+        "title": "Claude Push-to-Talk: Global Dictation Key"
+      },
+      {
+        "command": "claudePushToTalk.cancelDictation",
+        "title": "Claude Push-to-Talk: Cancel Dictation"
+      },
+      {
+        "command": "claudePushToTalk.toggleReadAloud",
+        "title": "Claude Push-to-Talk: Toggle Read Aloud"
+      },
+      {
+        "command": "claudePushToTalk.toggleAutoSubmit",
+        "title": "Claude Push-to-Talk: Toggle Auto-Submit"
+      },
+      {
+        "command": "claudePushToTalk.stopSpeaking",
+        "title": "Claude Push-to-Talk: Stop Speaking"
+      },
+      {
+        "command": "claudePushToTalk.pickVoice",
+        "title": "Claude Push-to-Talk: Select Read-Aloud Voice"
+      },
+      {
+        "command": "claudePushToTalk.refreshVoices",
+        "title": "Claude Push-to-Talk: Refresh Voice List"
+      },
+      {
+        "command": "claudePushToTalk.removeVoices",
+        "title": "Claude Push-to-Talk: Remove Downloaded Voices"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "claudePushToTalk.dictationKey",
+        "key": "ctrl+d",
+        "when": "!editorTextFocus && !terminalFocus && !listFocus && !panelFocus && (activeWebviewPanelId == 'claudeVSCodePanel' || claude-vscode.sideBarActive)"
+      },
+      {
+        "command": "claudePushToTalk.dictationKeyGlobal",
+        "key": "insert",
+        "when": "config.claudePushToTalk.globalDictation && (!terminalFocus || config.claudePushToTalk.dictationInTerminal)"
+      },
+      {
+        "command": "claudePushToTalk.cancelDictation",
+        "key": "escape",
+        "when": "claudePushToTalk.recording"
+      },
+      {
+        "command": "claudePushToTalk.stopSpeaking",
+        "key": "alt+x"
+      }
+    ],
+    "configuration": {
+      "title": "Claude Push-to-Talk",
+      "properties": {
+        "claudePushToTalk.globalDictation": {
+          "order": 1,
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "The dictation key (**Insert** by default) starts dictation anywhere in VS Code (editor, file explorer, Claude panel). **Hold** the key while you speak and release it to stop, or **tap** it once to start and once more to stop (a press shorter than 200 ms is a tap). Focus moves to the Claude input and stays there.\n\nTo use a different key, open Keyboard Shortcuts and rebind **Claude Push-to-Talk: Global Dictation Key**.\n\nWith the default key this replaces Insert's *overtype mode* function. It does not work in the terminal unless **Dictation In Terminal** is turned on. When turned off, dictation works only in the Claude panel with **Ctrl+D**."
+        },
+        "claudePushToTalk.dictationInTerminal": {
+          "order": 2,
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Lets the dictation key (**Insert** by default, or the key you assigned) start dictation while the terminal is focused too.\n\nWhen this is off, the key is passed to the program running in the terminal as usual (for example, `vim` uses Insert to switch between insert and replace mode). When it is on, programs in the terminal no longer receive that key."
+        },
+        "claudePushToTalk.autoSubmit": {
+          "order": 3,
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Submits the message automatically when dictation stops: when you release the dictation key after holding it, or tap it a second time (**Insert** by default, or **Ctrl+D** in the Claude panel). When turned off, the text stays in the input box and you have to press Enter."
+        },
+        "claudePushToTalk.submitDelayMs": {
+          "order": 4,
+          "type": "number",
+          "default": 800,
+          "minimum": 300,
+          "markdownDescription": "How long to wait, in milliseconds, after dictation stops before the message is submitted. The last words reach the input box a moment after you stop speaking, so the message cannot be sent instantly: values below `300` are treated as `300`. Increase it if the last words are being cut off."
+        },
+        "claudePushToTalk.clearOnCancel": {
+          "order": 5,
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Press **Esc** while dictating to cancel: dictation stops and the message is not sent.\n\nWhen this is on, the input box is also emptied after a cancel. This removes everything in the box, including any text you typed before dictating. When it is off, the dictated text stays in the box."
+        },
+        "claudePushToTalk.readAloud": {
+          "order": 6,
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Reads the text aloud when Claude finishes a response. This needs a selected voice; see **Voice**. You can also toggle it with **Claude Push-to-Talk: Toggle Read Aloud** from the Command Palette.\n\nTo stop the current reading, press the stop-speaking key (**Alt+X** by default). To use a different key, open Keyboard Shortcuts and rebind **Claude Push-to-Talk: Stop Speaking**."
+        },
+        "claudePushToTalk.voice": {
+          "order": 7,
+          "type": "string",
+          "enum": [
+            ""
+          ],
+          "enumItemLabels": [
+            "None (nothing is read aloud)"
+          ],
+          "enumDescriptions": [
+            "No voice is selected, so nothing is read aloud. The voices of this computer are added to this list when the extension starts; reload the window when it asks."
+          ],
+          "default": "",
+          "markdownDescription": "The voice that reads responses. It reads every text, whatever its language; the voice is not picked by language.\n\nNo voice is selected at first, and nothing is read until you select one. The first time the extension starts it asks: on **Windows** you pick one of the voices installed in Windows or download a Piper voice; on **Linux**, which has no built-in voices, you pick a Piper voice to download.\n\nTo change the voice, pick it in this list or [open the voice list](command:claudePushToTalk.pickVoice) (**Claude Push-to-Talk: Select Read-Aloud Voice** in the Command Palette). The end of that list is also where you get further voices: **Download a Piper voice…** and, on Windows, **Install a Windows voice…**.\n\nPiper voices are natural voices from the [Piper](https://github.com/rhasspy/piper) project that run on this computer (the first download is about 90 MB, each further voice about 60 MB); the downloaded voice becomes the selected one. You can [remove downloaded voices](command:claudePushToTalk.removeVoices) one by one.\n\nWhen the voices change, the extension asks you to reload the window; the list is updated after the reload."
+        },
+        "claudePushToTalk.rate": {
+          "order": 8,
+          "type": "number",
+          "default": 1.15,
+          "minimum": 0.5,
+          "maximum": 3,
+          "markdownDescription": "Reading speed. `1.0` is normal speed; `1.5` is noticeably fast."
+        },
+        "claudePushToTalk.maxChars": {
+          "order": 9,
+          "type": "number",
+          "default": 1200,
+          "minimum": 0,
+          "markdownDescription": "The maximum number of characters to read from a response. Set it to `0` to read the whole response."
+        },
+        "claudePushToTalk.windowsVoice": {
+          "type": "string",
+          "markdownDeprecationMessage": "Renamed to `claudePushToTalk.voice`. A value set here is moved to the new setting when the extension starts."
+        }
+      }
+    },
+    "configurationDefaults": {
+      "terminal.integrated.commandsToSkipShell": [
+        "claudePushToTalk.dictationKeyGlobal"
+      ]
+    }
+  }
+}

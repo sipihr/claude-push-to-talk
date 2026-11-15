@@ -1,0 +1,9 @@
+# Built packages
+*.vsix
+
+# Python
+__pycache__/
+*.pyc
+
+# Local packaging helper (the published package is built with vsce)
+build_vsix.py
