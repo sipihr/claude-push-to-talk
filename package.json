@@ -13,7 +13,7 @@
     "url": "https://github.com/sipihr/claude-push-to-talk/issues"
   },
   "homepage": "https://github.com/sipihr/claude-push-to-talk#readme",
-  "version": "1.21.0",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.80.0"
   },
