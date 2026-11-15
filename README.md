@@ -14,7 +14,7 @@ This is an independent extension. It is not made or endorsed by Anthropic.
 
 ## Requirements
 
-- The official Claude Code extension, with voice dictation working.
+- The official Claude Code extension, with voice dictation working. VS Code installs it together with this extension if it is missing.
 - Windows 10 or 11, or Linux with GNOME on Wayland (tested on Ubuntu 26.04). See [Linux](#linux) for details.
 
 ## Getting started

@@ -13,7 +13,7 @@
     "url": "https://github.com/sipihr/claude-push-to-talk/issues"
   },
   "homepage": "https://github.com/sipihr/claude-push-to-talk#readme",
-  "version": "1.20.2",
+  "version": "1.20.3",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -22,6 +22,9 @@
   ],
   "extensionKind": [
     "ui"
+  ],
+  "extensionDependencies": [
+    "anthropic.claude-code"
   ],
   "main": "./extension.js",
   "scripts": {
