@@ -79,10 +79,8 @@ function log(msg) {
 }
 
 // The voice chosen in the settings; '' means none is chosen, and then nothing is read aloud.
-// "auto" was a value of earlier versions, which picked a voice by the language of the text.
 function selectedVoice() {
-  const v = String(cfg().get('voice', '') || '');
-  return v === 'auto' ? '' : v;
+  return String(cfg().get('voice', '') || '');
 }
 
 function writeConfig() {
@@ -155,40 +153,6 @@ function ensureHook() {
   vscode.window.showInformationMessage(
     'Claude Push-to-Talk: The read-aloud hook was added to your Claude settings. Responses are read in Claude sessions started from now on.'
   );
-}
-
-// The voice setting used to be called "windowsVoice". Moves a value set under the old name to the new one.
-async function migrateVoiceSetting() {
-  const old = cfg().inspect('windowsVoice');
-  const now = cfg().inspect('voice');
-  if (!old || !now) return;
-  const levels = [
-    [vscode.ConfigurationTarget.Global, old.globalValue, now.globalValue],
-    [vscode.ConfigurationTarget.Workspace, old.workspaceValue, now.workspaceValue],
-  ];
-  for (const [target, oldValue, newValue] of levels) {
-    if (oldValue === undefined) continue;
-    try {
-      if (newValue === undefined && oldValue !== 'auto') await cfg().update('voice', oldValue, target);
-      await cfg().update('windowsVoice', undefined, target);
-    } catch (e) {
-      log(`Could not move the old voice setting: ${e.message}`);
-    }
-  }
-  // "auto" (a voice picked by the language of the text) no longer exists; the setting goes back to its default.
-  const voice = cfg().inspect('voice');
-  for (const [target, value] of [
-    [vscode.ConfigurationTarget.Global, voice.globalValue],
-    [vscode.ConfigurationTarget.Workspace, voice.workspaceValue],
-  ]) {
-    if (value !== 'auto') continue;
-    try {
-      await cfg().update('voice', undefined, target);
-      log('The "Automatic" voice no longer exists; the Voice setting was reset.');
-    } catch (e) {
-      log(`Could not reset the voice setting: ${e.message}`);
-    }
-  }
 }
 
 function helperExited(reason) {
@@ -1036,7 +1000,6 @@ function activate(context) {
   }
 
   writeConfig();
-  migrateVoiceSetting(); // a moved value arrives through onDidChangeConfiguration below
   ensureHook();
   startHelper(context);
   syncVoiceList(context);
