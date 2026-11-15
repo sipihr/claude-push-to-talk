@@ -18,7 +18,20 @@
     "vscode": "^1.80.0"
   },
   "categories": [
+    "AI",
     "Other"
+  ],
+  "keywords": [
+    "claude",
+    "claude code",
+    "push to talk",
+    "voice",
+    "dictation",
+    "speech to text",
+    "text to speech",
+    "read aloud",
+    "hands-free",
+    "accessibility"
   ],
   "extensionKind": [
     "ui"
