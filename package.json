@@ -13,7 +13,7 @@
     "url": "https://github.com/sipihr/claude-push-to-talk/issues"
   },
   "homepage": "https://github.com/sipihr/claude-push-to-talk#readme",
-  "version": "1.20.3",
+  "version": "1.21.0",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -62,10 +62,6 @@
       {
         "command": "claudePushToTalk.pickVoice",
         "title": "Claude Push-to-Talk: Select Read-Aloud Voice"
-      },
-      {
-        "command": "claudePushToTalk.refreshVoices",
-        "title": "Claude Push-to-Talk: Refresh Voice List"
       },
       {
         "command": "claudePushToTalk.removeVoices",
@@ -148,17 +144,8 @@
         "claudePushToTalk.voice": {
           "order": 7,
           "type": "string",
-          "enum": [
-            ""
-          ],
-          "enumItemLabels": [
-            "None (nothing is read aloud)"
-          ],
-          "enumDescriptions": [
-            "No voice is selected, so nothing is read aloud. The voices of this computer are added to this list when the extension starts; reload the window when it asks."
-          ],
           "default": "",
-          "markdownDescription": "The voice that reads responses. It reads every text, whatever its language; the voice is not picked by language.\n\nNo voice is selected at first, and nothing is read until you select one. The first time the extension starts it asks: on **Windows** you pick one of the voices installed in Windows or download a Piper voice; on **Linux**, which has no built-in voices, you pick a Piper voice to download.\n\nTo change the voice, pick it in this list or [open the voice list](command:claudePushToTalk.pickVoice) (**Claude Push-to-Talk: Select Read-Aloud Voice** in the Command Palette). The end of that list is also where you get further voices: **Download a Piper voice…** and, on Windows, **Install a Windows voice…**.\n\nPiper voices are natural voices from the [Piper](https://github.com/rhasspy/piper) project that run on this computer (the first download is about 90 MB, each further voice about 60 MB); the downloaded voice becomes the selected one. You can [remove downloaded voices](command:claudePushToTalk.removeVoices) one by one.\n\nWhen the voices change, the extension asks you to reload the window; the list is updated after the reload."
+          "markdownDescription": "The voice that reads responses. It reads every text, whatever its language; the voice is not picked by language.\n\n**[Select a voice](command:claudePushToTalk.pickVoice)** to choose from the voices on this computer (**Claude Push-to-Talk: Select Read-Aloud Voice** in the Command Palette). That list is also where you download a Piper voice, install a Windows voice or remove downloaded voices. This field shows the name of the selected voice.\n\nNo voice is selected at first, and nothing is read until you select one; the extension asks the first time it starts. On **Windows** you can use the voices installed in Windows or download [Piper](https://github.com/rhasspy/piper) voices; on **Linux**, which has no built-in voices, Piper voices are the only kind. Piper voices run on this computer (the first download is about 90 MB, each further voice about 60 MB)."
         },
         "claudePushToTalk.rate": {
           "order": 8,

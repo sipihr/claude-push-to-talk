@@ -458,83 +458,25 @@ async function getVoices() {
   }
 }
 
-// The dropdown on the Settings screen is read from package.json and cannot be changed at run time.
-// So when the installed voices change, the extension rewrites its own package.json;
-// the new list appears after the window is reloaded.
-// Calls are queued, so two changes in a row do not write the file at the same time.
-let voiceListQueue = Promise.resolve();
-function syncVoiceList(context) {
-  voiceListQueue = voiceListQueue.then(() => writeVoiceList(context)).catch((e) => log(`Voice list: ${e.message}`));
-  return voiceListQueue;
-}
-
-async function writeVoiceList(context) {
-  const voices = await getVoices();
-  // No answer from the helper: keep the list as it is. (On Linux an empty list is real: nothing is downloaded yet.)
-  if (!voices.length && !IS_LINUX) return;
-
-  // A voice that is not on this computer (picked from a list that was out of date, removed, or left over
-  // from another computer) would silently be ignored; put the setting back to "auto" and say so.
+// The Voice setting is plain text, so it can name a voice that is not on this computer: typed by hand,
+// uninstalled, or synced from another computer. Such a voice would read nothing, so the setting is cleared
+// and the user is told.
+async function checkVoice() {
   const current = selectedVoice();
-  const known = voices.some((v) => String(v.name).toLowerCase().includes(current.toLowerCase()));
-  if (current && !known) {
-    await cfg().update('voice', undefined, vscode.ConfigurationTarget.Global);
-    log(`Voice "${current}" is not on this computer; the Voice setting was reset.`);
-    vscode.window.showWarningMessage(
-      `Claude Push-to-Talk: The voice "${current}" is not on this computer, so no voice is selected now. Select one to have responses read aloud.`
-    );
-  }
-  const pkgPath = path.join(context.extensionPath, 'package.json');
-  let pkg;
-  try {
-    pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  } catch (e) {
-    log(`Could not read package.json: ${e.message}`);
-    return;
-  }
-  const groups = [].concat(pkg.contributes.configuration);
-  const group = groups.find((g) => g.properties && g.properties['claudePushToTalk.voice']);
-  if (!group) return;
-  const prop = group.properties['claudePushToTalk.voice'];
-
-  const next = {
-    enum: [''].concat(voices.map((v) => shortVoiceName(v.name))),
-    enumItemLabels: [NO_VOICE_LABEL].concat(voices.map((v) => `${v.name} (${voiceDetail(v)})`)),
-    enumDescriptions: ['No voice is selected, so nothing is read aloud. Pick one of the voices in this list.'].concat(
-      voices.map((v) => `Every text is read by ${shortVoiceName(v.name)}; text in other languages is spoken with this voice's pronunciation.`)
-    ),
-  };
-  const same = ['enum', 'enumItemLabels', 'enumDescriptions'].every(
-    (k) => JSON.stringify(prop[k]) === JSON.stringify(next[k])
+  if (!current) return;
+  const voices = await getVoices();
+  // No answer from the helper: leave the setting alone. (On Linux an empty list is real: nothing is downloaded.)
+  if (!voices.length && !IS_LINUX) return;
+  if (voices.some((v) => String(v.name).toLowerCase().includes(current.toLowerCase()))) return;
+  await cfg().update('voice', undefined, vscode.ConfigurationTarget.Global);
+  log(`Voice "${current}" is not on this computer; the Voice setting was cleared.`);
+  const select = 'Select a voice…';
+  const choice = await vscode.window.showWarningMessage(
+    `Claude Push-to-Talk: The voice "${current}" is not on this computer, so no voice is selected now and nothing is read aloud.`,
+    select
   );
-  if (same) return;
-
-  Object.assign(prop, next);
-  try {
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
-    // VS Code reads the extension scan from a cache; refreshing the manifest file's timestamp triggers a rescan.
-    const manifest = path.join(path.dirname(context.extensionPath), 'extensions.json');
-    const now = new Date();
-    try {
-      fs.utimesSync(manifest, now, now);
-    } catch (_) {}
-  } catch (e) {
-    log(`Could not write the voice list: ${e.message}`);
-    return;
-  }
-  log(`Voice list updated: ${next.enum.filter(Boolean).join(', ') || '(no voices)'}`);
-  vscode.window
-    .showInformationMessage(
-      'Claude Push-to-Talk: The list of voices has changed. Reload the window to update the Voice list on the Settings screen.',
-      'Reload'
-    )
-    .then((choice) => {
-      if (choice) vscode.commands.executeCommand('workbench.action.reloadWindow');
-    });
+  if (choice === select) vscode.commands.executeCommand('claudePushToTalk.pickVoice');
 }
-
-// The first entry of the Voice list on the Settings screen: no voice is chosen.
-const NO_VOICE_LABEL = 'None (nothing is read aloud)';
 
 // Reads the installed voices live and shows a pick list.
 // firstRun: the list is shown by the extension itself, the first time it runs.
@@ -582,14 +524,13 @@ async function pickVoice(context, firstRun = false) {
   if (picked.value === '__remove__') return removePiperVoices(context);
   await cfg().update('voice', picked.value || undefined, vscode.ConfigurationTarget.Global);
   vscode.window.setStatusBarMessage(`Read-aloud voice: ${picked.label.replace('$(check) ', '')}`, 3000);
-  syncVoiceList(context);
 }
 
 // Windows voices are installed by Windows itself, in its speech settings.
 async function installWindowsVoice() {
   await vscode.env.openExternal(vscode.Uri.parse('ms-settings:speech'));
   vscode.window.showInformationMessage(
-    'Install the new voice with "Add voices" in Windows settings. When it finishes, run "Claude Push-to-Talk: Refresh Voice List".'
+    'Install the new voice with "Add voices" in Windows settings. It then appears in "Claude Push-to-Talk: Select Read-Aloud Voice".'
   );
 }
 
@@ -822,7 +763,6 @@ async function pickAndDownloadPiperVoice(context, firstRun) {
   vscode.window.showInformationMessage(
     `Claude Push-to-Talk: ${key} is downloaded and selected as the read-aloud voice. It reads every response, whatever its language.`
   );
-  syncVoiceList(context);
 }
 
 // Lets the user tick which downloaded Piper voices to delete. When none is left, the speech engine is deleted too.
@@ -880,7 +820,6 @@ async function removePiperVoices(context) {
   }
   log(`Voices removed: ${keys.join(', ')}${all ? ' (and the speech engine)' : ''}`);
   vscode.window.setStatusBarMessage(keys.length === 1 ? `Voice removed: ${keys[0]}` : `${keys.length} voices removed.`, 3000);
-  syncVoiceList(context);
 }
 
 // After every response that was not read because no voice is downloaded or selected, tells the user so.
@@ -1002,7 +941,7 @@ function activate(context) {
   writeConfig();
   ensureHook();
   startHelper(context);
-  syncVoiceList(context);
+  checkVoice().catch((e) => log(`Voice check: ${e.message}`));
   chooseFirstVoice(context);
   watchNoVoice(context);
   watchUninstall(context);
@@ -1014,10 +953,6 @@ function activate(context) {
     vscode.commands.registerCommand('claudePushToTalk.stopSpeaking', stopSpeaking),
     vscode.commands.registerCommand('claudePushToTalk.pickVoice', () => pickVoice(context)),
     vscode.commands.registerCommand('claudePushToTalk.removeVoices', () => removePiperVoices(context)),
-    vscode.commands.registerCommand('claudePushToTalk.refreshVoices', async () => {
-      await syncVoiceList(context);
-      vscode.window.setStatusBarMessage('Voice list checked.', 2500);
-    }),
     vscode.commands.registerCommand('claudePushToTalk.toggleReadAloud', async () => {
       await toggleSetting('readAloud', 'Read aloud');
       if (!cfg().get('readAloud', true)) stopSpeaking();
@@ -1030,7 +965,7 @@ function activate(context) {
         writeConfig();
         ensureHook();
       }
-      if (e.affectsConfiguration('claudePushToTalk.voice')) syncVoiceList(context);
+      if (e.affectsConfiguration('claudePushToTalk.voice')) checkVoice().catch((err) => log(`Voice check: ${err.message}`));
     })
   );
 }

@@ -55,7 +55,7 @@ On Linux, Piper voices are the only kind, so the first start goes straight to th
 All voices are managed in one list: run **Claude Push-to-Talk: Select Read-Aloud Voice**. It shows the voices on your computer; pick one to make it the reading voice. The end of the list has the ways to get a further voice:
 
 - **Download a Piper voice…** opens the list of Piper voices.
-- **Install a Windows voice…** (Windows only) opens the Windows speech settings, where you add a voice with "Add voices". Afterwards run **Claude Push-to-Talk: Refresh Voice List**.
+- **Install a Windows voice…** (Windows only) opens the Windows speech settings, where you add a voice with "Add voices". The new voice then appears in this list.
 - **Remove downloaded voices…** deletes Piper voices one by one.
 
 To download a Piper voice:
@@ -67,8 +67,6 @@ To download a Piper voice:
 The first download is about 90 MB (the speech engine and one voice); each further voice is about 60 MB. No administrator rights are needed. The voice you download becomes the selected voice.
 
 Voices have different licences, and some do not allow commercial use (the Turkish voice, for example). Check that the licence allows your use.
-
-The voice can also be changed in the **Voice** setting.
 
 If read aloud is on and no voice is selected, VS Code shows a warning after each response that could not be read, with buttons to select a voice or to turn read aloud off.
 
@@ -89,11 +87,9 @@ Reading stops when a new dictation starts, when you press Alt+X, or when the VS 
 | Submit Delay Ms | 800 | How long to wait after dictation stops before the message is sent. The last words arrive a moment after you stop speaking; increase this if they are cut off. The minimum is 300 |
 | Clear On Cancel | on | After a cancel with Esc, empties the input box. This removes everything in it, including text typed before dictating |
 | Read Aloud | on | Reads responses aloud |
-| Voice | none | The voice that reads. Nothing is read until one is selected |
+| Voice | none | The name of the voice that reads. Set it with **Claude Push-to-Talk: Select Read-Aloud Voice**; nothing is read until a voice is selected |
 | Rate | 1.15 | Reading speed (1.0 is normal) |
 | Max Chars | 1200 | The most characters read from one response (0 = no limit) |
-
-The **Voice** list shows the voices on your computer. When they change, the extension asks you to reload the window so the list can be updated.
 
 ## Commands
 
@@ -103,7 +99,6 @@ The **Voice** list shows the voices on your computer. When they change, the exte
 | Claude Push-to-Talk: Stop Speaking | Stops the current reading (Alt+X) |
 | Claude Push-to-Talk: Select Read-Aloud Voice | Shows the voices on your computer to pick from. The end of the list lets you download a Piper voice, install a Windows voice (Windows only) or remove downloaded voices |
 | Claude Push-to-Talk: Remove Downloaded Voices | Deletes downloaded Piper voices |
-| Claude Push-to-Talk: Refresh Voice List | Re-checks the voices on your computer |
 | Claude Push-to-Talk: Toggle Read Aloud | Turns read aloud on or off |
 | Claude Push-to-Talk: Toggle Auto-Submit | Turns auto-submit on or off |
 
@@ -135,7 +130,6 @@ Other setups:
 - **The last words are missing:** Increase **Submit Delay Ms**.
 - **Nothing is read aloud:** Check that **Read Aloud** is on and a **Voice** is selected, then start a new Claude session; the hook takes effect in sessions started after it was added.
 - **The dictation key does nothing in the terminal with Dictation In Terminal on:** If you have set `terminal.integrated.commandsToSkipShell` yourself, add `claudePushToTalk.dictationKeyGlobal` to it.
-- **A new voice is missing from the Voice setting:** Run **Claude Push-to-Talk: Refresh Voice List** and reload the window.
 - **Linux, not GNOME: the message is not sent and the log says permission was not given:** The "Allow Remote Desktop" dialog was closed without allowing. Reload the window; the dialog is shown again.
 
 ## Known limitations
