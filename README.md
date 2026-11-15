@@ -2,6 +2,8 @@
 
 *Push to talk. Release to send. Listen to the answer.*
 
+![Dictating a question about the selected code to Claude Code with the Insert key, and Claude answering](images/push-to-talk-demo.gif)
+
 Talk to Claude Code from anywhere in VS Code and hear its answers. This extension works alongside the official Claude Code extension, on Windows and on Linux (GNOME on Wayland).
 
 - **Push to talk:** **Hold** a key anywhere in VS Code, speak, and release; the message is sent to Claude without pressing Enter. Or **tap** the key once to start dictation and once more to stop and send.
