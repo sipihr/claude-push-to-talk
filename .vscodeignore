@@ -1,0 +1,8 @@
+# Files that are in the repository but do not belong in the published package
+.gitignore
+.vscodeignore
+build_vsix.py
+*.vsix
+__pycache__/
+# The README shows this from GitHub; it does not need to ship with the extension
+images/
